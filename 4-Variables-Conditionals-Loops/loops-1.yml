@@ -1,0 +1,27 @@
+-
+  name: create users
+  hosts: localhost
+  tasks:
+    - user: name='{{ item.name }}' state=present uid='{{ item.uid }}'
+      loop:
+        - name: joao
+          uid: 1010
+        - name: maria
+          uid: 1020
+        - name: jose
+          uid: 1030
+
+OR
+
+-
+  name: create users
+  hosts: localhost
+  tasks:
+    - user: name='{{ item.name }}' state=present uid='{{ item.uid }}'
+      with_items:
+        - name: joao
+          uid: 1010
+        - name: maria
+          uid: 1020
+        - name: jose
+          uid: 1030
