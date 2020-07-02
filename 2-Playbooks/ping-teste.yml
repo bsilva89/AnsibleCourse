@@ -1,0 +1,6 @@
+-
+  name: Teste de conectividade nas máquinas
+  hosts: all
+  tasks:
+    - name: Ping task
+      ping:

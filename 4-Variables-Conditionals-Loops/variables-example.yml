@@ -1,0 +1,28 @@
+- 
+  name: Play 1 - line in file mod
+  hosts: localhost
+  tasks:
+    - lineinfile:
+      path: /etc/resolv.conf
+      line: 'nameserver 10.0.250.10'
+
+
+-
+  name: Play 1 - same as above
+  hosts: localhost
+  vars:
+    dns_server: 10.0.250.10
+  tasks:
+    - lineinfile:
+      path: /etc/resolv.conf
+      line: 'nameserver {{ dns_server }}'
+
+-
+  name: Play 2 - line in file mod
+  hosts: localhost
+  vars:
+    dns_server: 10.0.250.10
+  tasks:
+    - lineinfile:
+      path: /etc/resolv.conf
+      line: 'nameserver {{ dns_server }}'

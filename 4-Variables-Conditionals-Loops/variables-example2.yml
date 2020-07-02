@@ -1,0 +1,23 @@
+-
+  name: Firewall Conf
+  hosts: web
+  tasks:
+    - firewalld:
+      service: https
+      permanent: true
+      state: enabled
+
+    - firewalld:
+      service: '{{ http_port }}'/tcp
+      permanent: true
+      state: disabled
+
+    - firewalld:
+      service: '{{ snmp_port }}'/udp
+      permanent: true
+      state: disabled
+
+    - firewalld:
+      service: '{{ inter_ip_range }}'/24
+      Zone: internal
+      state: enabled

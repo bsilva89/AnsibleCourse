@@ -1,0 +1,45 @@
+-
+  name: Play 1 - execute commmands
+  hosts: localhost
+  tasks:
+    - name: execute command date
+      command: date
+    
+    - name: display resolv.conf
+      command: cat /etc/resolv.conf
+
+    - name: display resolv.conf as above
+      command: cat resolv.conf chdir=/etc
+    
+    - name: mkdir
+      command: mkdir /folder creates=/folder
+
+-
+  name: Play 2 - execute a script on target machine
+  hosts: localhost
+  tasks:
+    - name: copy file
+      copy: src=/source_file dest=/destination
+    
+    - name: execute script X
+      script: /some/local/scriptX.sh -arg1 -arg2
+
+-
+  name: Play 3 - start services
+  hosts: localhost
+  tasks:
+    - name: start postgresql service
+      service: name=postgresql state=started
+      
+    - name: start nginx service -another way to state
+      service: 
+        name: ngix
+        state: started
+
+-
+  name: Play 4 - line in file mod
+  hosts: localhost
+  tasks:
+    - lineinfile:
+      path: /etc/resolv.conf
+      line: 'nameserver 10.0.250.10'
