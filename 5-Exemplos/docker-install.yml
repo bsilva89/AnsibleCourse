@@ -1,0 +1,52 @@
+-
+  name: docker installer
+  hosts: all
+  become: true
+  vars:
+    packages1:
+      - name: apt-transport-https
+      - name: curl
+      - name: ca-certificates
+      - name: gnupg-agent
+      - name: software-properties-common
+    packages2:
+      - name: docker-ce
+      - name: docker-ce-cli
+      - name: containerd.io
+  tasks:
+    - name: execute command date
+      command: date
+
+    - name: update apt
+      apt:
+        update_cache: yes
+
+    - name: upgrade apt
+      apt:
+        upgrade: dist
+
+    - name: install basics 
+      apt:
+        name: "{{ item.name }}"
+        state: present
+      loop: "{{ packages1 }}"
+
+    - name: add docker key
+      apt_key:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        state: present
+
+    - name: add docker repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: install docker
+      apt:
+        name: "{{ item.name }}"
+        state: present
+      loop: "{{ packages2 }}"
+
+    - name: config user
+      command: usermod -aG docker bss
+      become: true
