@@ -40,6 +40,7 @@
   name: Play 4 - line in file mod
   hosts: localhost
   tasks:
-    - lineinfile:
-      path: /etc/resolv.conf
-      line: 'nameserver 10.0.250.10'
+    - name: put a line
+      lineinfile:
+        path: /etc/resolv.conf
+        line: 'nameserver 10.0.250.10'

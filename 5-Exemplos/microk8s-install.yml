@@ -1,0 +1,79 @@
+---
+- name: instalando microk8s
+  hosts: all
+  become: true
+
+  tasks:
+    - name: update apt
+      apt:
+        update_cache: yes
+
+    - name: upgrade apt
+      apt:
+        upgrade: dist
+
+    - name: install k8s
+      snap:
+        name:
+          - microk8s
+        classic: yes
+
+    - name: config user
+      command: usermod -aG microk8s bss
+      become: true
+
+    - name: set alias
+      lineinfile:
+        path: /home/bss/.bashrc
+        line: alias kubectl='microk8s kubectl'
+
+    - name: config dns
+      command: microk8s enable dns
+      become: true
+
+- name: resetando k8s
+  hosts: worker_nodes
+  tasks:
+    - name: leaving previous cluster
+      command: microk8s leave
+      become: true
+      ignore_errors: yes
+
+- name: coletando token
+  hosts: master_nodes
+  tasks:
+    - name: get a new token
+      shell: "microk8s add-node | grep '^Join' | cut -c17-"
+      become: true
+      register: result1
+
+- name: adicionando node1
+  hosts: kub2
+  tasks:
+    - name: add new node to master
+      shell: "{{ hostvars['kub1']['result1']['stdout'] }}"
+      become: true
+
+- name: coletando token
+  hosts: master_nodes
+  tasks:
+    - name: get a new token
+      shell: microk8s add-node | grep '^Join' | cut -c17-
+      become: true
+      register: result2
+
+- name: adicionando node2
+  hosts: kub3
+  tasks:
+    - name: add new node to master
+      shell: "{{ hostvars['kub1']['result2']['stdout'] }}"
+      become: true
+
+- name: removendo nodes antigos
+  hosts: master_nodes
+  tasks:
+    - name: remove node '{{ item }}'
+      shell: microk8s remove-node $(microk8s kubectl get no | grep NotReady | cut -d ' ' -f1)
+      become: true
+      ignore_errors: yes
+      with_items: "{{ groups['worker_nodes'] }}"

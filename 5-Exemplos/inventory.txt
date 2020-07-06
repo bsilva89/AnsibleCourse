@@ -1,0 +1,14 @@
+kub1 ansible_host=192.168.15.13 ansible_connection=ssh
+kub2 ansible_host=192.168.15.22 ansible_connection=ssh
+kub3 ansible_host=192.168.15.143 ansible_connection=ssh
+
+[worker_nodes]
+kub2
+kub3
+
+[master_nodes]
+kub1
+
+[all_nodes:children]
+master_nodes
+worker_nodes
