@@ -1,0 +1,17 @@
+ansible = ansible_connection=local
+master ansible_host=192.168.15.100 ansible_ssh_private_key_file='~/nodemaster/private_key'
+node1 ansible_host=192.168.15.101 ansible_ssh_private_key_file='~/node1/private_key'
+node2 ansible_host=192.168.15.102 ansible_ssh_private_key_file='~/node2/private_key'
+node3 ansible_host=192.168.15.103 ansible_ssh_private_key_file='~/node3/private_key'
+
+[worker_nodes]
+node1
+node2
+node3
+
+[master_nodes]
+master
+
+[nodes:children]
+master_nodes
+worker_nodes
