@@ -1,29 +1,28 @@
 ---
-# - name: atualizando nodes
-#   hosts: nodes
-#   become: yes
+- name: atualizando nodes
+  hosts: nodes
+  become: yes
+  tasks:
+    - name: install k8s
+      snap:
+        name:
+          - microk8s
+        classic: yes
 
-#   tasks:
-#     - name: install k8s
-#       snap:
-#         name:
-#           - microk8s
-#         classic: yes
+    - name: config user
+      command: usermod -aG microk8s vagrant
 
-#     - name: config user
-#       command: usermod -aG microk8s vagrant
+    - name: set alias
+      lineinfile:
+        path: /home/vagrant/.bashrc
+        line: alias kubectl='microk8s kubectl'
 
-#     - name: set alias
-#       lineinfile:
-#         path: /home/vagrant/.bashrc
-#         line: alias kubectl='microk8s kubectl'
-
-# - name: config dns master
-#   hosts: master_nodes
-#   tasks:
-#     - name: config dns master
-#       command: microk8s enable dns
-#       become: yes
+- name: config dns master
+  hosts: master_nodes
+  tasks:
+    - name: config dns master
+      command: microk8s enable dns
+      become: yes
 
 - name: coletando token
   hosts: master
