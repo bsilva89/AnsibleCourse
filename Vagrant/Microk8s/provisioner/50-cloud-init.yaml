@@ -1,0 +1,10 @@
+network:
+    ethernets:
+        enp0s3:
+            dhcp4: false
+            addresses:
+                - 10.0.2.15/24
+            match:
+                macaddress: 02:ba:2b:75:11:a5
+            set-name: enp0s3
+    version: 2

@@ -14,18 +14,32 @@ N = 3
       vb.name = "nodemaster"
     end
     nodemaster.vm.hostname = "nodemaster"
-    nodemaster.vm.network "public_network", ip: "192.168.15.100"
+    nodemaster.vm.network "public_network", auto_config: false
+  
+    # defaulting router
+    nodemaster.vm.provision "shell", inline: "ip addr add 192.168.15.100/24 dev enp0s8"
+    nodemaster.vm.provision "shell", inline: "ip link set dev enp0s8 up"
+    nodemaster.vm.provision "shell", inline: "ip route flush 0/0"
+    nodemaster.vm.provision "shell", inline: "ip route add default via 192.168.15.1 dev enp0s8"
+    nodemaster.vm.provision "shell", inline: "ip route del 10.0.2.2/32"
   end
 
   (1..N).each do |i|
     config.vm.define "node#{i}" do |node|
       node.vm.provider "virtualbox" do |vb|
-        vb.memory = 2048
+        vb.memory = 1536
         vb.cpus = 1
         vb.name = "node#{i}"
       end
-      node.vm.network "public_network", ip: "192.168.15.#{i + 100}"
+      node.vm.network "public_network", auto_config: false
       node.vm.hostname = "node#{i}"
+
+      # defaulting router
+      node.vm.provision "shell", inline: "ip addr add 192.168.15.#{i + 100}/24 dev enp0s8"
+      node.vm.provision "shell", inline: "ip link set dev enp0s8 up"
+      node.vm.provision "shell", inline: "ip route flush 0/0"
+      node.vm.provision "shell", inline: "ip route add default via 192.168.15.1 dev enp0s8"
+      node.vm.provision "shell", inline: "ip route del 10.0.2.2/32"
     end
   end
 
@@ -35,7 +49,7 @@ N = 3
       vb.cpus = 1
       vb.name = "AnsibleVM"
     end
-    ansible.vm.network "private_network", ip: "192.168.15.150"
+    ansible.vm.network "public_network", ip: "192.168.15.110"
 
     ansible.vm.provision "shell", path: "provisioner/ansible_vm_script.sh"
 
@@ -48,7 +62,7 @@ N = 3
     end
 
     ansible.vm.provision "setup_k8s", type: "ansible_local" do |ansible|
-      ansible.playbook = "./provisioner/ansible_vm_playbook.yml"
+     ansible.playbook = "./provisioner/ansible_vm_playbook.yml"
       ansible.inventory_path = "./provisioner/inventory.txt"
       ansible.limit = "all"
       ansible.verbose = false

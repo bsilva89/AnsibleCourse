@@ -17,6 +17,41 @@
         path: /home/vagrant/.bashrc
         line: alias kubectl='microk8s kubectl'
 
+- name: fixing net interfaces
+  hosts: nodes
+  become: yes
+  tasks:
+    - name: replacing interface reference for flannel
+      lineinfile:
+        path: /var/snap/microk8s/current/args/flanneld
+        regexp: '^--iface'
+        line: --iface=enp0s8
+    - name: creating archive to disable network change on boot
+      lineinfile:
+        path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+        create: true
+        regexp: '^network'
+        line: 'network: {config: disabled}'
+    - name: replacing interface config files 50-cloud-init - enp0s3
+      copy: 
+        src: /vagrant/provisioner/50-cloud-init.yaml
+        dest: /etc/netplan/50-cloud-init.yaml
+    - name: replacing interface config files 50-vagrant - enp0s8
+      copy: 
+        src: /vagrant/provisioner/50-vagrant.yaml
+        dest: /etc/netplan/50-vagrant.yaml
+    - name: replacing ips
+      lineinfile:
+        path: /etc/netplan/50-vagrant.yaml
+        regexp: '^      -'
+        line: "      - {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}/24"
+
+# In case you need to restart flanneld service
+#    - name:  Restart service flanneld, in all cases
+#      service:
+#        name: snap.microk8s.daemon-flanneld
+#        state: restarted
+
 - name: config dns master
   hosts: master_nodes
   tasks:
