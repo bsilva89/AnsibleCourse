@@ -23,6 +23,9 @@ spec:
           hostPath:
             path: /tmp/mongodata
             type: DirectoryOrCreate
+          #usando persistent volume seria:
+          #persistentVolumeClaim:
+          #  claimName: mongo-pvc
 
 ---
 kind: Service
